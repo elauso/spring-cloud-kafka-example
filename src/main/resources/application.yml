@@ -1,0 +1,46 @@
+spring:
+  application:
+    name: 'spring-cloud-kafka-example'
+  main:
+    allow-bean-definition-overriding: true
+  cloud:
+    function:
+      definition: customerCreatedProducer;customerCreatedConsume
+    stream:
+      kafka:
+        binder:
+          brokers: 'localhost:9092'
+          auto-create-topics: true
+          auto-add-partitions: true
+          consumer-properties:
+            max.poll.records: 20
+            key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
+            value.deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+          producer-properties:
+            key.serializer: org.apache.kafka.common.serialization.StringSerializer
+            value.serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+        bindings:
+          customerCreatedConsume-in-0:
+            consumer:
+              auto-commit-offset: true
+              auto-commit-on-error: true
+              configuration:
+                max.poll.interval.ms: 10000
+      bindings:
+        customerCreatedConsume-in-0:
+          destination: 'queueing.example.customer.created'
+          group: ${spring.application.name}-customer-created
+          content-type: application/json
+          consumer:
+            default-retryable: true
+        customerCreatedProducer-out-0:
+          destination: 'queueing.example.customer.created'
+management:
+  tracing.sampling.probability: 1.0
+  endpoints.web.exposure.include: '*'
+logging:
+  pattern:
+    level: '%5p [${spring.application.name:},%X{traceId:-},%X{spanId:-}]'
+  level:
+    org.springframework: INFO
+    net.elau.example.springcloudkafkaexample: DEBUG
