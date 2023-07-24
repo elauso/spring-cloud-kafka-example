@@ -12,6 +12,7 @@ spring:
           brokers: 'localhost:9092'
           auto-create-topics: true
           auto-add-partitions: true
+          enable-observation: true
           consumer-properties:
             max.poll.records: 20
             key.deserializer: org.apache.kafka.common.serialization.StringDeserializer
